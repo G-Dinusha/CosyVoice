@@ -1,16 +1,26 @@
 ## ModuleNotFoundError: No module named 'matcha'
 
-Matcha-TTS is a third_party module. Please check `third_party` directory. If there is no `Matcha-TTS`, execute `git submodule update --init --recursive`.
+If you encounter the error `ModuleNotFoundError: No module named 'matcha'`, follow these steps to resolve it:
 
-run `export PYTHONPATH=third_party/Matcha-TTS` if you want to use `from cosyvoice.cli.cosyvoice import CosyVoice` in python script.
+1. **Check the `third_party` Directory**:
+   Ensure that the `Matcha-TTS` directory exists within the `third_party` directory of your project.
 
-## cannot find resource.zip or cannot unzip resource.zip
+2. **Initialize Submodules**:
+   If `Matcha-TTS` is missing, you need to initialize the Git submodules. Run the following command in your terminal:
 
-Please make sure you have git-lfs installed. Execute
+   ```sh
+   git submodule update --init --recursive
 
-```sh
-git clone https://www.modelscope.cn/iic/CosyVoice-ttsfrd.git pretrained_models/CosyVoice-ttsfrd
-cd pretrained_models/CosyVoice-ttsfrd/
-unzip resource.zip -d .
-pip install ttsfrd-0.3.6-cp38-cp38-linux_x86_64.whl
-```
+## Cannot Find `resource.zip` or Cannot Unzip `resource.zip`
+
+If you encounter an issue where `resource.zip` cannot be found or cannot be unzipped, follow these steps:
+
+1. **Ensure Git LFS is Installed**:
+   Make sure you have Git LFS (Large File Storage) installed. If you haven't installed it yet, follow the [installation instructions here](https://git-lfs.github.com/).
+
+2. **Clone the Repository**:
+   Execute the following commands in your terminal to clone the repository:
+
+   ```sh
+   git clone https://www.modelscope.cn/iic/CosyVoice-ttsfrd.git pretrained_models/CosyVoice-ttsfrd
+
