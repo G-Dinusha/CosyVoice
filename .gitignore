@@ -1,51 +1,136 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <title>Three.js CSS2D - Label</title>
+    <link rel="stylesheet" href="main.css">
+    <style>
+        .label {
+            color: #FFF;
+            font-family: sans-serif;
+            padding: 2px;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div id="info">
+        <a href="https://threejs.org" target="_blank" rel="noopener">Three.js</a> CSS2D - Label
+    </div>
 
-# Visual Studio Code files
-.vscode
-.vs
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "../build/three.module.js",
+                "three/examples/jsm/controls/OrbitControls.js": "../examples/jsm/controls/OrbitControls.js",
+                "three/examples/jsm/renderers/CSS2DRenderer.js": "../examples/jsm/renderers/CSS2DRenderer.js",
+                "three/examples/jsm/libs/lil-gui.module.min.js": "../examples/jsm/libs/lil-gui.module.min.js"
+            }
+        }
+    </script>
 
-# PyCharm files
-.idea
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+        import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
+        import { GUI } from 'three/examples/jsm/libs/lil-gui.module.min.js';
 
-# Eclipse Project settings
-*.*project
-.settings
+        let gui;
+        let camera, scene, renderer, labelRenderer;
+        const clock = new THREE.Clock();
 
-# Sublime Text settings
-*.sublime-workspace
-*.sublime-project
+        init();
+        animate();
 
-# Editor temporaries
-*.swn
-*.swo
-*.swp
-*.swm
-*~
+        function init() {
+            const EARTH_RADIUS = 1;
+            const MOON_RADIUS = 0.27;
 
-# IPython notebook checkpoints
-.ipynb_checkpoints
+            // Setup camera
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 200);
+            camera.position.set(10, 5, 20);
 
-# macOS dir files
-.DS_Store
+            // Create scene
+            scene = new THREE.Scene();
 
-exp
-data
-raw_wav
-tensorboard
-**/*build*
+            // Add light
+            const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+            dirLight.position.set(5, 5, 5);
+            scene.add(dirLight);
 
-# Clangd files
-.cache
-compile_commands.json
+            // Create earth
+            const earthGeometry = new THREE.SphereGeometry(EARTH_RADIUS, 16, 16);
+            const earthMaterial = new THREE.MeshPhongMaterial({
+                map: new THREE.TextureLoader().load('textures/planets/earth_atmos_2048.jpg')
+            });
+            const earth = new THREE.Mesh(earthGeometry, earthMaterial);
+            scene.add(earth);
 
-# train/inference files
-*.wav
-*.m4a
-*.aac
-*.pt
-pretrained_models/*
-*_pb2_grpc.py
-*_pb2.py
+            // Create moon
+            const moonGeometry = new THREE.SphereGeometry(MOON_RADIUS, 16, 16);
+            const moonMaterial = new THREE.MeshPhongMaterial({
+                map: new THREE.TextureLoader().load('textures/planets/moon_1024.jpg')
+            });
+            const moon = new THREE.Mesh(moonGeometry, moonMaterial);
+            scene.add(moon);
+
+            // Create labels
+            createLabel(earth, 'Earth', EARTH_RADIUS);
+            createLabel(moon, 'Moon', MOON_RADIUS);
+
+            // Setup renderers
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            labelRenderer = new CSS2DRenderer();
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.domElement.style.position = 'absolute';
+            labelRenderer.domElement.style.top = '0';
+            document.body.appendChild(labelRenderer.domElement);
+
+            // Add controls
+            const controls = new OrbitControls(camera, labelRenderer.domElement);
+            controls.minDistance = 5;
+            controls.maxDistance = 100;
+
+            // Handle window resize
+            window.addEventListener('resize', onWindowResize);
+
+            initGui();
+        }
+
+        function createLabel(object, text, radius) {
+            const div = document.createElement('div');
+            div.className = 'label';
+            div.textContent = text;
+            const label = new CSS2DObject(div);
+            label.position.set(1.5 * radius, 0, 0);
+            object.add(label);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const elapsed = clock.getElapsedTime();
+            // Move the moon in a circular orbit around the earth
+            scene.children[2].position.set(Math.sin(elapsed) * 3, 0, Math.cos(elapsed) * 3); // Index 2 is the moon
+            renderer.render(scene, camera);
+            labelRenderer.render(scene, camera);
+        }
+
+        function initGui() {
+            gui = new GUI();
+            gui.add({ toggleLabel: () => { /* Toggle functionality */ } }, 'toggleLabel').name('Toggle Labels');
+        }
+    </script>
+</body>
+</html>
